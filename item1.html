@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRForge — randomcooltools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --card: #ffffff;
+      --ink: #0d0d0d;
+      --accent: #ff4d00;
+      --accent2: #0033ff;
+      --muted: #888;
+      --input-bg: #eee9df;
+      --border: #0d0d0d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background-color: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 60px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* Top bar */
+    header {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0 0;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand span {
+      color: var(--accent);
+    }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1.5px solid currentColor;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    /* Main card */
+    .card {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .card-header {
+      padding: 40px 48px 32px;
+      border-bottom: 2px solid var(--border);
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+    }
+
+    .card-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .card-header h1 span {
+      color: var(--accent);
+    }
+
+    .card-header .sub {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .card-body {
+      padding: 40px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 580px) {
+      .card-body { grid-template-columns: 1fr; padding: 28px 24px; }
+      .card-header { padding: 28px 24px 24px; }
+    }
+
+    /* Left col: controls */
+    .controls { display: flex; flex-direction: column; gap: 20px; }
+
+    label.field-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      background: var(--input-bg);
+      color: var(--ink);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent2);
+      box-shadow: 3px 3px 0 var(--accent2);
+    }
+
+    input[type="text"]::placeholder { color: #aaa; }
+
+    .btn-row { display: flex; gap: 10px; }
+
+    button {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      flex: 1;
+    }
+
+    button:active { transform: translate(2px, 2px); box-shadow: none !important; }
+
+    .btn-generate {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+
+    .btn-generate:hover { box-shadow: 5px 5px 0 var(--border); transform: translate(-1px, -1px); }
+
+    .btn-download {
+      background: var(--input-bg);
+      color: var(--ink);
+      box-shadow: 3px 3px 0 var(--border);
+    }
+
+    .btn-download:hover { box-shadow: 5px 5px 0 var(--border); transform: translate(-1px, -1px); }
+
+    /* Mode toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle-row span {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: var(--input-bg);
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--border);
+      border-radius: 1px;
+      transition: transform 0.2s;
+    }
+
+    .switch input:checked + .slider { background: var(--accent2); }
+    .switch input:checked + .slider::before { transform: translate(22px, -50%); background: #fff; }
+
+    /* Right col: QR output */
+    .qr-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+
+    #qrResult {
+      width: 220px;
+      height: 220px;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      background: var(--input-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 4px 4px 0 var(--border);
+    }
+
+    #qrResult canvas, #qrResult img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .qr-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: #ccc;
+    }
+
+    .qr-placeholder svg { opacity: 0.3; }
+
+    .qr-placeholder p {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 32px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* Dark mode */
+    body.dark {
+      --bg: #0a0a0a;
+      --card: #111;
+      --ink: #f0ede6;
+      --accent: #ff4d00;
+      --accent2: #4d8fff;
+      --muted: #666;
+      --input-bg: #1a1a1a;
+      --border: #f0ede6;
+    }
+
+    body.dark .card { box-shadow: 6px 6px 0 var(--accent); }
+    body.dark #qrResult { box-shadow: 4px 4px 0 var(--accent); }
+    body.dark .btn-generate { box-shadow: 3px 3px 0 var(--accent); }
+    body.dark .btn-download { box-shadow: 3px 3px 0 var(--accent); }
+
+    /* Animate in */
+    .card { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="brand" href="#"><span>random</span>cooltools</a>
+    <span class="tag">Free Tool</span>
+  </header>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <p class="sub">Tool #007</p>
+        <h1>QR<span>Forge</span></h1>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Controls -->
+      <div class="controls">
+        <div>
+          <label class="field-label" for="qrText">URL or text</label>
+          <input type="text" id="qrText" placeholder="e.g. randomcooltools.com" />
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-generate" onclick="generateQR()">Generate</button>
+          <button class="btn-download" onclick="downloadQR()">↓ PNG</button>
+        </div>
+
+        <div class="toggle-row">
+          <span>Light</span>
+          <label class="switch">
+            <input type="checkbox" id="modeToggle">
+            <span class="slider"></span>
+          </label>
+          <span>Dark</span>
+        </div>
+      </div>
+
+      <!-- QR Output -->
+      <div class="qr-panel">
+        <div id="qrResult">
+          <div class="qr-placeholder">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="4" width="24" height="24" rx="2" stroke="#888" stroke-width="3"/>
+              <rect x="10" y="10" width="12" height="12" fill="#888"/>
+              <rect x="36" y="4" width="24" height="24" rx="2" stroke="#888" stroke-width="3"/>
+              <rect x="42" y="10" width="12" height="12" fill="#888"/>
+              <rect x="4" y="36" width="24" height="24" rx="2" stroke="#888" stroke-width="3"/>
+              <rect x="10" y="42" width="12" height="12" fill="#888"/>
+              <rect x="36" y="36" width="8" height="8" fill="#888"/>
+              <rect x="50" y="36" width="10" height="8" fill="#888"/>
+              <rect x="36" y="50" width="10" height="10" fill="#888"/>
+              <rect x="52" y="50" width="8" height="10" fill="#888"/>
+            </svg>
+            <p>Output here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Part of <a href="#">randomcooltools</a> — free tools, no fluff.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <script>
+    let qr = null;
+
+    document.getElementById('modeToggle').addEventListener('change', function () {
+      document.body.classList.toggle('dark', this.checked);
+    });
+
+    function generateQR() {
+      let text = document.getElementById("qrText").value.trim();
+      const result = document.getElementById("qrResult");
+
+      if (!text) {
+        document.getElementById("qrText").focus();
+        return;
+      }
+
+      // Auto-prefix https://
+      if (!text.startsWith("http://") && !text.startsWith("https://") && text.includes(".")) {
+        text = "https://" + text;
+      }
+
+      result.innerHTML = "";
+      qr = new QRCode(result, {
+        text: text,
+        width: 216,
+        height: 216,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function downloadQR() {
+      const result = document.getElementById("qrResult");
+      const canvas = result.querySelector("canvas");
+      const img = result.querySelector("img");
+
+      let src;
+      if (canvas) src = canvas.toDataURL("image/png");
+      else if (img) src = img.src;
+      else return;
+
+      const a = document.createElement("a");
+      a.href = src;
+      a.download = "qrforge-randomcooltools.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Enter key support
+    document.getElementById("qrText").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") generateQR();
+    });
+  </script>
+</body>
+</html>
