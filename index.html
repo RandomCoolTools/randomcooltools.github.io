@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>randomcooltools — Free Tools, No Fluff</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --card: #ffffff;
+      --ink: #0d0d0d;
+      --accent: #ff4d00;
+      --accent2: #0033ff;
+      --muted: #888;
+      --input-bg: #eee9df;
+      --border: #0d0d0d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background-color: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 80px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand span { color: var(--accent); }
+
+    nav { display: flex; gap: 20px; align-items: center; }
+
+    nav a {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    nav a:hover { color: var(--ink); }
+
+    /* ── Hero ── */
+    .hero {
+      width: 100%;
+      max-width: 900px;
+      padding: 70px 0 60px;
+      position: relative;
+      z-index: 1;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 9vw, 6.5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      max-width: 740px;
+      margin-bottom: 32px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero h1 .outline {
+      -webkit-text-stroke: 2px var(--ink);
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 480px;
+    }
+
+    /* ── Tools Section ── */
+    .section {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 64px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      opacity: 0.2;
+    }
+
+    /* Tool cards grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      padding: 28px 24px;
+      text-decoration: none;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 4px 4px 0 var(--border);
+      transition: transform 0.12s, box-shadow 0.12s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--border);
+    }
+
+    .tool-card:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--border);
+    }
+
+    .tool-card .num {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .tool-card .tool-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .tool-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .tool-card h3 span { color: var(--accent); }
+
+    .tool-card p {
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .tool-card .arrow {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    /* Featured card */
+    .tool-card.featured {
+      background: var(--ink);
+      color: #fff;
+      box-shadow: 4px 4px 0 var(--accent);
+    }
+
+    .tool-card.featured:hover {
+      box-shadow: 6px 6px 0 var(--accent);
+    }
+
+    .tool-card.featured:active {
+      box-shadow: 2px 2px 0 var(--accent);
+    }
+
+    .tool-card.featured .num { color: #555; }
+    .tool-card.featured p { color: #aaa; }
+    .tool-card.featured .arrow { color: var(--accent); }
+
+    /* Coming soon cards */
+    .tool-card.soon {
+      opacity: 0.5;
+      pointer-events: none;
+      background: var(--input-bg);
+      box-shadow: none;
+    }
+
+    .soon-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 3px 7px;
+      border-radius: 1px;
+    }
+
+    /* ── About section ── */
+    .about-block {
+      margin-top: 64px;
+      width: 100%;
+      max-width: 900px;
+      background: var(--ink);
+      color: #fff;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      box-shadow: 6px 6px 0 var(--accent);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      .about-block { grid-template-columns: 1fr; padding: 32px 24px; gap: 28px; }
+    }
+
+    .about-block h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+
+    .about-block h2 span { color: var(--accent); }
+
+    .about-block p {
+      font-size: 12px;
+      line-height: 1.9;
+      color: #aaa;
+    }
+
+    .about-block p + p { margin-top: 14px; }
+
+    .manifesto {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .manifesto-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    .manifesto-item::before {
+      content: '→';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer p {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* Animations */
+    .hero, .tools-grid, .about-block {
+      animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .tools-grid { animation-delay: 0.1s; }
+    .about-block { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .tool-card:nth-child(2) { animation-delay: 0.05s; }
+    .tool-card:nth-child(3) { animation-delay: 0.1s; }
+    .tool-card:nth-child(4) { animation-delay: 0.15s; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <a class="brand" href="index.html"><span>random</span>cooltools</a>
+    <nav>
+      <a href="#tools">Tools</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="hero-eyebrow">100% Free · No login · No ads</p>
+    <h1>
+      Free tools<br>
+      <span class="outline">that</span> actually<br>
+      <em>work.</em>
+    </h1>
+    <p class="hero-sub">
+      A growing collection of simple, fast, no-nonsense tools for everyday tasks.
+      No accounts, no paywalls, no bloat.
+    </p>
+  </section>
+
+  <!-- Tools Grid -->
+  <section class="section" id="tools">
+    <p class="section-label">The Tools</p>
+    <div class="tools-grid">
+
+      <!-- QRForge - featured / live -->
+      <a class="tool-card featured" href="item1.html">
+        <span class="num">Tool #001</span>
+        <div class="tool-icon">⬛</div>
+        <h3>QR<span>Forge</span></h3>
+        <p>Generate & download QR codes instantly. Just paste a URL and go.</p>
+        <span class="arrow">Open tool →</span>
+      </a>
+
+      <!-- Coming soon slots -->
+      <a class="tool-card" href="item2.html">
+        <span class="num">Tool #002</span>
+        <div class="tool-icon">🎡</div>
+        <h3>Spin<span>Forge</span></h3>
+        <p>Spin a customisable wheel to pick a random name, option, or winner. Instant &amp; fair.</p>
+        <span class="arrow">Open tool →</span>
+      </a>
+
+      <div class="tool-card soon">
+        <span class="soon-badge">Soon</span>
+        <span class="num">Tool #003</span>
+        <div class="tool-icon">📝</div>
+        <h3>Text<span>Tools</span></h3>
+        <p>Word count, case converter, lorem generator — all in one place.</p>
+        <span class="arrow">Coming soon →</span>
+      </div>
+
+      <div class="tool-card soon">
+        <span class="soon-badge">Soon</span>
+        <span class="num">Tool #004</span>
+        <div class="tool-icon">🔐</div>
+        <h3>Pass<span>Gen</span></h3>
+        <p>Generate strong, customisable passwords. No data sent anywhere.</p>
+        <span class="arrow">Coming soon →</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- About -->
+  <div class="about-block" id="about">
+    <div>
+      <h2>Built for<br><span>humans,</span><br>not bots.</h2>
+    </div>
+    <div>
+      <p>
+        randomcooltools is a side project built out of frustration with bloated,
+        ad-stuffed, login-walled tool sites. Everything here is free, fast, and
+        straightforward.
+      </p>
+      <div class="manifesto">
+        <div class="manifesto-item">No accounts required — ever</div>
+        <div class="manifesto-item">No ads, no trackers, no nonsense</div>
+        <div class="manifesto-item">New tools added regularly</div>
+        <div class="manifesto-item">Works on any device</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 <a href="#">randomcooltools</a></p>
+    <p>Free tools, no fluff.</p>
+  </footer>
+
+</body>
+</html>

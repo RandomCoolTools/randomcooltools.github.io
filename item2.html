@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpinForge — randomcooltools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --card: #ffffff;
+      --ink: #0d0d0d;
+      --accent: #ff4d00;
+      --accent2: #0033ff;
+      --muted: #888;
+      --input-bg: #eee9df;
+      --border: #0d0d0d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background-color: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px 60px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0 14px;
+      border-bottom: 2px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .brand span { color: var(--accent); }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1.5px solid currentColor;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    /* Main card */
+    .card {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      box-shadow: 6px 6px 0 var(--border);
+      margin-top: 40px;
+      animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 40px 48px 32px;
+      border-bottom: 2px solid var(--border);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .card-header .sub {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .card-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .card-header h1 span { color: var(--accent); }
+
+    .card-body {
+      padding: 40px 48px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .card-body { grid-template-columns: 1fr; padding: 28px 20px; gap: 32px; }
+      .card-header { padding: 28px 20px 24px; }
+      .wheel-col { order: -1; }
+    }
+
+    /* ── Left: controls ── */
+    .controls { display: flex; flex-direction: column; gap: 20px; }
+
+    label.field-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      background: var(--input-bg);
+      color: var(--ink);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      resize: vertical;
+      min-height: 160px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent2);
+      box-shadow: 3px 3px 0 var(--accent2);
+    }
+
+    textarea::placeholder { color: #aaa; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    button {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    button:active { transform: translate(2px,2px) !important; box-shadow: none !important; }
+
+    .btn-spin {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 3px 3px 0 var(--border);
+      flex: 1;
+    }
+    .btn-spin:hover { box-shadow: 5px 5px 0 var(--border); transform: translate(-1px,-1px); }
+    .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    .btn-clear {
+      background: var(--input-bg);
+      color: var(--muted);
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .btn-clear:hover { box-shadow: 5px 5px 0 var(--border); transform: translate(-1px,-1px); }
+
+    /* Result display */
+    .result-box {
+      border: 2px solid var(--border);
+      border-radius: 2px;
+      padding: 18px;
+      background: var(--input-bg);
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-box .result-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .result-box .result-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* History */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px dashed #ddd;
+    }
+
+    .history-item .hi-num {
+      font-size: 9px;
+      color: #ccc;
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── Right: wheel ── */
+    .wheel-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    /* Pointer */
+    .wheel-pointer {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 28px solid var(--accent);
+      z-index: 10;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    #wheelCanvas {
+      width: 300px;
+      height: 300px;
+      border: 3px solid var(--border);
+      border-radius: 50%;
+      box-shadow: 5px 5px 0 var(--border);
+      display: block;
+    }
+
+    /* Center button overlay */
+    .spin-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 52px;
+      height: 52px;
+      background: var(--ink);
+      border: 3px solid var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: transform 0.15s;
+    }
+
+    .spin-center:hover { transform: translate(-50%,-50%) scale(1.1); }
+    .spin-center svg { pointer-events: none; }
+
+    footer {
+      margin-top: 32px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="brand" href="index.html"><span>random</span>cooltools</a>
+    <span class="tag">Tool #002</span>
+  </header>
+
+  <div class="card">
+    <div class="card-header">
+      <p class="sub">Tool #002</p>
+      <h1>Spin<span>Forge</span></h1>
+    </div>
+
+    <div class="card-body">
+      <!-- Controls -->
+      <div class="controls">
+        <div>
+          <label class="field-label" for="namesInput">Enter names (one per line)</label>
+          <textarea id="namesInput" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dana&#10;Evan"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-spin" id="spinBtn" onclick="spinWheel()">↻ Spin</button>
+          <button class="btn-clear" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div>
+          <label class="field-label">Winner</label>
+          <div class="result-box">
+            <span class="result-label">→</span>
+            <span class="result-value" id="resultValue">—</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label">History</label>
+          <div class="history-list" id="historyList">
+            <span style="font-size:11px;color:#ccc">No spins yet.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wheel -->
+      <div class="wheel-col">
+        <div class="wheel-wrapper">
+          <div class="wheel-pointer"></div>
+          <canvas id="wheelCanvas" width="300" height="300"></canvas>
+          <div class="spin-center" onclick="spinWheel()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 3V1M10 1L7.5 3.5M10 1L12.5 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 10C16 13.3137 13.3137 16 10 16C6.68629 16 4 13.3137 4 10C4 6.68629 6.68629 4 10 4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Part of <a href="index.html">randomcooltools</a> — free tools, no fluff.
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = 300, H = 300, CX = W/2, CY = H/2, R = 142;
+
+    // Brutalist palette — ink + accent combos
+    const PALETTES = [
+      ['#ff4d00','#0033ff','#0d0d0d','#f5f0e8','#888','#ffd700'],
+      ['#0d0d0d','#ff4d00','#0033ff','#888','#ffd700','#f5f0e8'],
+    ];
+    const COLORS = [...PALETTES[0], ...PALETTES[1]];
+
+    let currentAngle = 0;
+    let spinning = false;
+    let spinHistory = [];
+    let animFrame;
+
+    function getNames() {
+      return document.getElementById('namesInput').value
+        .split('\n')
+        .map(n => n.trim())
+        .filter(Boolean);
+    }
+
+    function drawWheel(angle) {
+      const names = getNames();
+      ctx.clearRect(0, 0, W, H);
+
+      if (names.length === 0) {
+        ctx.fillStyle = '#eee9df';
+        ctx.beginPath();
+        ctx.arc(CX, CY, R, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#0d0d0d';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = '#aaa';
+        ctx.font = "bold 11px 'Space Mono'";
+        ctx.textAlign = 'center';
+        ctx.fillText('Add names', CX, CY - 6);
+        ctx.fillText('to start', CX, CY + 12);
+        return;
+      }
+
+      const slice = (Math.PI * 2) / names.length;
+
+      names.forEach((name, i) => {
+        const start = angle + i * slice;
+        const end = start + slice;
+
+        // Segment
+        ctx.beginPath();
+        ctx.moveTo(CX, CY);
+        ctx.arc(CX, CY, R, start, end);
+        ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length];
+        ctx.fill();
+        ctx.strokeStyle = '#0d0d0d';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Label
+        ctx.save();
+        ctx.translate(CX, CY);
+        ctx.rotate(start + slice / 2);
+        ctx.textAlign = 'right';
+        const maxLen = 14;
+        const label = name.length > maxLen ? name.slice(0, maxLen - 1) + '…' : name;
+        const fontSize = names.length > 10 ? 9 : names.length > 6 ? 11 : 13;
+        ctx.font = `bold ${fontSize}px 'Space Mono', monospace`;
+        // contrast
+        const bg = COLORS[i % COLORS.length];
+        ctx.fillStyle = (bg === '#0d0d0d' || bg === '#0033ff') ? '#ffffff' : '#0d0d0d';
+        ctx.fillText(label, R - 10, 4);
+        ctx.restore();
+      });
+
+      // Center circle
+      ctx.beginPath();
+      ctx.arc(CX, CY, 26, 0, Math.PI*2);
+      ctx.fillStyle = '#0d0d0d';
+      ctx.fill();
+    }
+
+    function spinWheel() {
+      const names = getNames();
+      if (names.length < 2) {
+        document.getElementById('namesInput').focus();
+        return;
+      }
+      if (spinning) return;
+
+      spinning = true;
+      document.getElementById('spinBtn').disabled = true;
+
+      const extraSpins = (Math.floor(Math.random() * 5) + 6) * Math.PI * 2;
+      const targetOffset = Math.random() * Math.PI * 2;
+      const totalRotation = extraSpins + targetOffset;
+      const duration = 3500 + Math.random() * 1500;
+      const startTime = performance.now();
+      const startAngle = currentAngle;
+
+      function easeOut(t) {
+        return 1 - Math.pow(1 - t, 4);
+      }
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        currentAngle = startAngle + totalRotation * easeOut(t);
+        drawWheel(currentAngle);
+
+        if (t < 1) {
+          animFrame = requestAnimationFrame(animate);
+        } else {
+          spinning = false;
+          document.getElementById('spinBtn').disabled = false;
+          announceWinner(names);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function announceWinner(names) {
+      const slice = (Math.PI * 2) / names.length;
+      // Pointer is at top (−π/2), find which segment aligns
+      const normalized = (((-currentAngle - Math.PI / 2) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      const idx = Math.floor(normalized / slice) % names.length;
+      const winner = names[idx];
+
+      const resultEl = document.getElementById('resultValue');
+      resultEl.textContent = winner;
+      // re-trigger animation
+      resultEl.style.animation = 'none';
+      resultEl.offsetHeight;
+      resultEl.style.animation = '';
+
+      // History
+      spinHistory.unshift(winner);
+      if (spinHistory.length > 20) spinHistory.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (spinHistory.length === 0) {
+        list.innerHTML = '<span style="font-size:11px;color:#ccc">No spins yet.</span>';
+        return;
+      }
+      list.innerHTML = spinHistory.map((n, i) =>
+        `<div class="history-item"><span class="hi-num">#${i+1}</span>${n}</div>`
+      ).join('');
+    }
+
+    function clearAll() {
+      document.getElementById('namesInput').value = '';
+      document.getElementById('resultValue').textContent = '—';
+      spinHistory = [];
+      renderHistory();
+      currentAngle = 0;
+      drawWheel(0);
+    }
+
+    // Redraw on input
+    document.getElementById('namesInput').addEventListener('input', () => drawWheel(currentAngle));
+
+    // Initial draw with demo names
+    document.getElementById('namesInput').value = 'Alice\nBob\nCharlie\nDana\nEvan';
+    drawWheel(0);
+  </script>
+</body>
+</html>
